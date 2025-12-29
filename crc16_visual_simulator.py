@@ -96,7 +96,7 @@ def random_bits(n):
 # Error injection
 # ------------------------------------------------
 
-def independent_error(frame, num_errors=None, max_errors=5):
+def independent_error(frame, num_errors=None, max_errors=10):
     """
     Independent bit errors.
     
@@ -155,7 +155,12 @@ def highlight_errors(original, received):
 # ------------------------------------------------
 # Full educational demo (UPDATED)
 # ------------------------------------------------
-def crc_demo(error_type="none", burst_size=None):
+def crc_demo(error_type="none", burst_size=None, num_errors=None):
+    """
+    error_type: 'none', 'independent', 'burst'
+    burst_size: user-defined burst size (or None for random)
+    num_errors: user-defined number of independent errors (or None for random)
+    """
     banner(f"CRC-16 DEMO — MODE: {error_type.upper()}")
 
     # 1. Generate data
@@ -187,12 +192,14 @@ def crc_demo(error_type="none", burst_size=None):
         print(f"\n{GREEN}✔ No error introduced in channel{RESET}")
 
     elif error_type == "independent":
-        rx, pos = independent_error(tx)
-        print(f"\n{RED}Independent bit errors at positions:{RESET} {pos}")
+        rx, pos = independent_error(tx, num_errors=num_errors)
+        if num_errors is None:
+            print(f"\n{RED}Independent bit errors at positions (random count):{RESET} {pos}")
+        else:
+            print(f"\n{RED}Independent bit errors at positions (forced count = {num_errors}):{RESET} {pos}")
 
     elif error_type == "burst":
         rx, rng = burst_error(tx, burst_length=burst_size)
-
         if burst_size is None:
             print(f"\n{RED}Burst error (random size) from bit {rng[0]} to {rng[1]}{RESET}")
         else:
@@ -223,3 +230,5 @@ crc_demo("burst")
 
 crc_demo("burst", burst_size=3)
 crc_demo("burst", burst_size=8)
+
+crc_demo("independent", num_errors=11)
